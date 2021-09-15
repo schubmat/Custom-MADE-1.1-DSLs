@@ -3,8 +3,6 @@ command=$1
 languageName=$2
 commandParamOne=$3 
 commandParamTwo=$4
-F_LOCK_BUILD=200
-F_LOCK_INITIALIZE=400
 
 ########################################################################
 ############################## FUNCTIONS ###############################
@@ -64,7 +62,7 @@ buildLangServerBinaryFromSubfolder() {
 		if [ ! -d "$BUILD_DIR" ]; then
 		# syncronize folder creation, but only do if it's really neccessary
 			(
-			flock -e $F_LOCK_BUILD
+			flock -e 200
 				# create build directory if necessary
 				if [ ! -d "$BUILD_DIR" ]; then
 					mkdir $BUILD_DIR;
@@ -77,7 +75,7 @@ buildLangServerBinaryFromSubfolder() {
 
 		# syncronize copying the binary
 		(
-		flock -e $F_LOCK_BUILD
+		flock -e 200
 			
 			# cp build to LSP_BUILDS folder
 			cp `find . -name "*ide*tar"` $BUILD_DIR
@@ -121,7 +119,7 @@ createTemporaryCopyOfLanguage() {
 	version=$2
 
 	( 
-	flock -e $F_LOCK_BUILD
+	flock -e 200
 
 		# checkout LSP configuration to be started --- not used currently
 		git checkout $languageName-_-$version
@@ -161,14 +159,14 @@ initializeAllLanguages() {
 	
 	# check whether repo has been initialized already
 	(
-	flock -e $F_LOCK_INITIALIZE
+	flock -e 200
 	
 	if [ ! -e .init ]; then
 		touch .init	
 		initializeLangaugeByLanguage
 	fi
 
-	) 200>/tmp/$languageName-_-$version.lockfile 
+	) 200>/tmp/CUSTOM_MADE_INIT 
 	#
 
 }	
@@ -213,7 +211,7 @@ elif [[ $command == "start" ]]; then
 
 	#
 	(
-	flock -e $F_LOCK_BUILD
+	flock -e 200
 
 	if [ ! -d $BUILD_DIR/$languageName-_-$version ]; then
 
@@ -292,7 +290,7 @@ elif [[ $command == "createNewLanguageVersion" ]]; then
 
 	# # briefly lock lock the folder
 	# ( 
-	# flock -e $F_LOCK_BUILD
+	# flock -e 200
 
 	# 	git checkout $languageName-_-$version
 	# 	# last slash is important, otherwise it will not be interpreted as a folder
