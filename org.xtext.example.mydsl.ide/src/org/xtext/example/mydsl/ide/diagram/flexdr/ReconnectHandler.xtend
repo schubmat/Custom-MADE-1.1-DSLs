@@ -1,30 +1,32 @@
 package org.xtext.example.mydsl.ide.diagram.flexdr
 
-import com.google.inject.Inject
-import org.eclipse.lsp4j.Range
-import org.eclipse.lsp4j.TextEdit
-import org.eclipse.lsp4j.WorkspaceEdit
-import org.eclipse.sprotty.SEdge
-import org.eclipse.sprotty.SModelElement
-import org.eclipse.sprotty.SModelIndex
+//import com.google.inject.Inject
+//import org.eclipse.lsp4j.Range
+//import org.eclipse.lsp4j.TextEdit
+//import org.eclipse.lsp4j.WorkspaceEdit
+//import org.eclipse.sprotty.SEdge
+//import org.eclipse.sprotty.SModelElement
+//import org.eclipse.sprotty.SModelIndex
 import org.eclipse.sprotty.xtext.ILanguageAwareDiagramServer
 import org.eclipse.sprotty.xtext.ReconnectAction
-import org.eclipse.sprotty.xtext.WorkspaceEditAction
-import org.eclipse.sprotty.xtext.tracing.PositionConverter
-import org.eclipse.sprotty.xtext.tracing.XtextTrace
-import org.eclipse.xtext.ide.server.ILanguageServerAccess
-import org.eclipse.xtext.ide.server.UriExtensions
-import org.eclipse.xtext.nodemodel.util.NodeModelUtils
-import static extension org.eclipse.xtext.EcoreUtil2.*
-import org.xtext.example.mydsl.myDsl.DecisionRecord
-import org.xtext.example.mydsl.myDsl.Model
+//import org.eclipse.sprotty.xtext.WorkspaceEditAction
+//import org.eclipse.sprotty.xtext.tracing.PositionConverter
+//import org.eclipse.sprotty.xtext.tracing.XtextTrace
+//import org.eclipse.xtext.ide.server.ILanguageServerAccess
+//import org.eclipse.xtext.ide.server.UriExtensions
+//import org.eclipse.xtext.nodemodel.util.NodeModelUtils
+//import static extension org.eclipse.xtext.EcoreUtil2.*
+// import org.xtext.example.mydsl.myDsl.DecisionRecord
+// import org.xtext.example.mydsl.myDsl.Model
 
 class ReconnectHandler {
 	
-	@Inject UriExtensions uriExtensions
-	@Inject extension PositionConverter
+//	@Inject UriExtensions uriExtensions
+//	@Inject extension PositionConverter
 	
 	def handle(ReconnectAction action, ILanguageAwareDiagramServer server) {
+
+/*
 		val root = server.diagramState.currentModel
 		val extension index = new SModelIndex(root)
 		val routable = action.routableId?.get
@@ -58,8 +60,9 @@ class ReconnectHandler {
 				}
 			return null
 		])
+*/
 	}
-	
+/*	
 	private def getOldRange(SModelElement routable) {
 		if (routable?.trace !== null) 
 			new XtextTrace(routable.trace).range
@@ -88,4 +91,6 @@ class ReconnectHandler {
 			throw new IllegalArgumentException('Invalid trace URI ' + path)
 		return uriExtensions.toUri(parts.head).trimQuery.appendFragment(parts.last)
 	}
+
+*/
 }
