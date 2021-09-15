@@ -1,4 +1,3 @@
 include 'org.xtext.example.mydsl'
 include 'org.xtext.example.mydsl.ide'
-rootProject.name = 'PROJECT_NAME'
-
+rootProject.name = 'simple_decision_record_language'
