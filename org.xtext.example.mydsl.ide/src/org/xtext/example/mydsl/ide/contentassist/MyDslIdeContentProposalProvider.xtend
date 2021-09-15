@@ -6,7 +6,6 @@ import org.eclipse.xtext.ide.editor.contentassist.ContentAssistContext
 import org.eclipse.xtext.ide.editor.contentassist.IIdeContentProposalAcceptor
 import org.eclipse.xtext.ide.editor.contentassist.IdeContentProposalProvider
 import org.eclipse.xtext.scoping.IScopeProvider
-import org.xtext.example.mydsl.myDsl.MyDslPackage
 import org.xtext.example.mydsl.services.MyDslGrammarAccess
 
 class MyDslIdeContentProposalProvider extends IdeContentProposalProvider {
@@ -17,16 +16,51 @@ class MyDslIdeContentProposalProvider extends IdeContentProposalProvider {
 
 	override protected _createProposals(RuleCall ruleCall, ContentAssistContext context,
 		IIdeContentProposalAcceptor acceptor) {
-		if (greetingRule == ruleCall.rule && context.currentModel !== null) {
-			val scope = scopeProvider.getScope(context.currentModel, MyDslPackage.Literals.GREETING__FROM)
-			acceptor.accept(
-				proposalCreator.
-					createSnippet('''Hello ${1|A,B,C|} from ${2|«scope.allElements.map[name.toString].join(",")»|}!''',
-						"New Greeting (Template with Choice)", context), 0)
-			acceptor.accept(
-				proposalCreator.createSnippet('''Hello ${1:name} from ${2:fromName}!''',
-					"New Greeting (Template with Placeholder)", context), 0)
+
+		// Considered Alternatives
+		if (modelRootRule == ruleCall.rule && context.currentModel !== null) {
+
+			acceptor.accept(proposalCreator.createSnippet('''
+				Language Name: LANGUAGE_ID
+				
+				DSL Type Definition:
+				    DR Object -- Type: Decision-Problem:
+				        ID: DP_ISSUE
+				        Name: "Issue"
+				    DR Object -- Type: Decision-Option:
+				        ID: DO_ALT
+				        Name: "Alternative"
+				    DR Object -- Type: Decision-Result:
+				        ID: DR_SEL_ALT
+				        Name: "SelectedAlternative"
+				
+				    Associations:
+				        Argumentative Relationship:
+				            Source: Statement:
+				                ID: DR_STATEMENT
+				                Name: "Statement: "
+				            Source Cardinality: 
+				                "1"
+				            Target: 
+				                DR Object -- Type: Statement:
+				                    ID: DR_STATEMENT
+				                    Name: "Statement: "
+				            Target Cardinality: 
+				                "1"
+				        Option Relationship:
+				            Source: Decision-Problem:
+				                ID: DP_ISSUE
+				                Name: "Issue"
+				            Source Cardinality: 
+				                "1"
+				            Target: Decision-Option:
+				                ID: DO_ALT
+				                Name: "Alternative"
+				            Target Cardinality: 
+				                "[2..*]" 
+''', "Complete Template", context), 0)
 		}
+
 		super._createProposals(ruleCall, context, acceptor)
 	}
 

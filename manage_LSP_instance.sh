@@ -3,8 +3,6 @@ command=$1
 languageName=$2
 commandParamOne=$3 
 commandParamTwo=$4
-F_LOCK_BUILD=200
-F_LOCK_INITIALIZE=400
 
 ########################################################################
 ############################## FUNCTIONS ###############################
@@ -18,7 +16,6 @@ performTask() {
 	version=$3
 
 	if [ $buildTask == "initialize" ]; then
-
 		# build_LSP_binary $BUILD_DIR $languageName $version
 		buildLangServerAndInstallConcurrently $BUILD_DIR $languageName $version
 		
@@ -64,7 +61,7 @@ buildLangServerBinaryFromSubfolder() {
 		if [ ! -d "$BUILD_DIR" ]; then
 		# syncronize folder creation, but only do if it's really neccessary
 			(
-			flock -e $F_LOCK_BUILD
+			flock -e 200
 				# create build directory if necessary
 				if [ ! -d "$BUILD_DIR" ]; then
 					mkdir $BUILD_DIR;
@@ -77,7 +74,7 @@ buildLangServerBinaryFromSubfolder() {
 
 		# syncronize copying the binary
 		(
-		flock -e $F_LOCK_BUILD
+		flock -e 200
 			
 			# cp build to LSP_BUILDS folder
 			cp `find . -name "*ide*tar"` $BUILD_DIR
@@ -121,7 +118,7 @@ createTemporaryCopyOfLanguage() {
 	version=$2
 
 	( 
-	flock -e $F_LOCK_BUILD
+	flock -e 200
 
 		# checkout LSP configuration to be started --- not used currently
 		git checkout $languageName-_-$version
@@ -138,8 +135,19 @@ installLanguageIntoLocalMavenRepo() {
 	./gradlew install
 }
 
+########################################################################
+################################ SCRIPT ################################
+########################################################################
 
-initializeLangaugeByLanguage() {
+BUILD_DIR="LSP_BUILDS"
+
+#----------------------------------------------------------------------
+#------------------------------- INIT ---------------------------------
+#----------------------------------------------------------------------
+    
+# for all available languages (equiv. to all branches but main and dev) build the 
+# LSP wrapper binaries and install the language build into the local repository
+if [[ $command == "init" ]]; then
 
 	git branch > branches.current
 	availableBranches=`cat branches.current | grep -v develop | grep -v main | grep -v templateLang | grep -v verification_and_validation`
@@ -155,43 +163,6 @@ initializeLangaugeByLanguage() {
 	done
 
 	rm branches.current
-}
-
-initializeAllLanguages() {
-	
-	# check whether repo has been initialized already
-	(
-	flock -e $F_LOCK_INITIALIZE
-	
-	if [ ! -e .init ]; then
-		touch .init	
-		initializeLangaugeByLanguage
-	fi
-
-	) 200>/tmp/$languageName-_-$version.lockfile 
-	#
-
-}	
-
-
-########################################################################
-################################ SCRIPT ################################
-########################################################################
-
-BUILD_DIR="LSP_BUILDS"
-
-#----------------------------------------------------------------------
-#------------------------------- INIT ---------------------------------
-#----------------------------------------------------------------------
-    
-# for all available languages (equiv. to all branches but main and dev) build the 
-# LSP wrapper binaries and install the language build into the local repository
-if [[ $command == "init" ]]; then
-
-	# check whether repo has been initialized already 
-	# and initialize
-
-	initializeAllLanguages
 
 #----------------------------------------------------------------------
 #------------------------------- START --------------------------------
@@ -200,20 +171,14 @@ if [[ $command == "init" ]]; then
 # otherwise start an LSP instance accordingly
 elif [[ $command == "start" ]]; then
 
-	# check whether repo has been initialized already 
-	# and initialize if necessary
-
-	initializeAllLanguages
-
 	version=$commandParamOne
 	port=$commandParamTwo
 
 	currTime=`date "+%H:%M:%S"`;
-	echo "## $currTime -- building / starting $languageName in version $version --> locking /tmp/$languageName-_-$version.lockfile " >> .logfile
-
+	echo "## $currTime -- building $languageName in version $version --> locking /tmp/$languageName-_-$version.lockfile " >> .logfile
 	#
 	(
-	flock -e $F_LOCK_BUILD
+	flock -e 200
 
 	if [ ! -d $BUILD_DIR/$languageName-_-$version ]; then
 
@@ -292,7 +257,7 @@ elif [[ $command == "createNewLanguageVersion" ]]; then
 
 	# # briefly lock lock the folder
 	# ( 
-	# flock -e $F_LOCK_BUILD
+	# flock -e 200
 
 	# 	git checkout $languageName-_-$version
 	# 	# last slash is important, otherwise it will not be interpreted as a folder
