@@ -3,8 +3,6 @@ command=$1
 languageName=$2
 commandParamOne=$3 
 commandParamTwo=$4
-F_LOCK_BUILD=200
-F_LOCK_INITIALIZE=400
 
 ########################################################################
 ############################## FUNCTIONS ###############################
@@ -19,7 +17,7 @@ performTask() {
 
 	if [ $buildTask == "initialize" ]; then
 
-		# build_LSP_binary $BUILD_DIR $languageName $version
+				# build_LSP_binary $BUILD_DIR $languageName $version
 		buildLangServerAndInstallConcurrently $BUILD_DIR $languageName $version
 		
 	elif [ $buildTask == "install" ]; then
@@ -64,7 +62,7 @@ buildLangServerBinaryFromSubfolder() {
 		if [ ! -d "$BUILD_DIR" ]; then
 		# syncronize folder creation, but only do if it's really neccessary
 			(
-			flock -e $F_LOCK_BUILD
+			flock -e 200
 				# create build directory if necessary
 				if [ ! -d "$BUILD_DIR" ]; then
 					mkdir $BUILD_DIR;
@@ -77,7 +75,7 @@ buildLangServerBinaryFromSubfolder() {
 
 		# syncronize copying the binary
 		(
-		flock -e $F_LOCK_BUILD
+		flock -e 200
 			
 			# cp build to LSP_BUILDS folder
 			cp `find . -name "*ide*tar"` $BUILD_DIR
@@ -121,7 +119,7 @@ createTemporaryCopyOfLanguage() {
 	version=$2
 
 	( 
-	flock -e $F_LOCK_BUILD
+	flock -e 200
 
 		# checkout LSP configuration to be started --- not used currently
 		git checkout $languageName-_-$version
@@ -159,16 +157,19 @@ initializeLangaugeByLanguage() {
 
 initializeAllLanguages() {
 	
+currTime=`date "+%H:%M:%S"`;
+	echo "## $currTime -- initializing all languages --> locking /tmp/CUSTOM-MADE_INIT-FLOCK.lockfile " >> .logfile
+
 	# check whether repo has been initialized already
 	(
-	flock -e $F_LOCK_INITIALIZE
+	flock -e 200
 	
 	if [ ! -e .init ]; then
 		touch .init	
 		initializeLangaugeByLanguage
 	fi
 
-	) 200>/tmp/$languageName-_-$version.lockfile 
+	) 200>/tmp/CUSTOM-MADE_INIT-FLOCK.lockfile
 	#
 
 }	
@@ -213,7 +214,7 @@ elif [[ $command == "start" ]]; then
 
 	#
 	(
-	flock -e $F_LOCK_BUILD
+	flock -e 200
 
 	if [ ! -d $BUILD_DIR/$languageName-_-$version ]; then
 
@@ -229,20 +230,23 @@ elif [[ $command == "start" ]]; then
 
 	fi 
 
-	) 200>/tmp/$languageName-_-$version.lockfile 
+	) 200>/tmp/CUSTOM-MADE_INIT-FLOCK.lockfile
 	#
 	
 
 	# start LSP in screen
 	# ls=`find . -type d -name "bin" | grep $BUILD_DIR/$languageName-_-$version`
 	#
-	cd `find . -type d -name "bin" | grep $languageName-_-$version`
+	
+	# cd `find . -type d -name "bin" | grep $languageName-_-$version`
+
 	#
 	# echo "###"
 	# echo `pwd`
 	# echo "###"
 	#echo "screen -dmS LSP-$languageName-_-$version-$port bash -c \"./mydsl-socket $port\""
-	screen -dmS LSP-$languageName-_-$version-$port bash -c "./mydsl-socket $port"
+
+	# screen -dmS LSP-$languageName-_-$version-$port bash -c "./mydsl-socket $port"
 
 	# go back to root folder 
 	# projectRoot=`pwd | awk -v rootFolder="$BUILD_DIR" '{print substr($_,0,index($_,rootFolder)-1)}'`
@@ -254,27 +258,27 @@ elif [[ $command == "start" ]]; then
 #----------------------------------------------------------------------
 
 ## --- if kill is specified, kill a concrete instance
-elif [[ $command == "kill" ]]; then
+# elif [[ $command == "kill" ]]; then
 
-	port=$commandParamOne
+# 	port=$commandParamOne
 
-	if [[ `screen -ls | grep -e $commandParamOne` ]]; then 
-		screen -ls | grep -e $commandParamOne | cut -d. -f1 | awk '{print $1}' | xargs kill -9;
-		screen -wipe
-	fi
-## --- if killAll is specified, kill all LSP instances
-elif [[ $command == "killAll" ]]; then
-	if [[ `screen -ls | grep -e LSP-` ]]; then 
-		screen -ls | grep -e LSP- | cut -d. -f1 | awk '{print $1}' | xargs kill -9;
-		screen -wipe
-	fi
-## --- if killAll-FromLanguage is specified, kill all LSP instances running that language
-elif [[ $command == "killAll-FromLanguage" ]]; then
+# 	if [[ `screen -ls | grep -e $commandParamOne` ]]; then 
+# 		screen -ls | grep -e $commandParamOne | cut -d. -f1 | awk '{print $1}' | xargs kill -9;
+# 		screen -wipe
+# 	fi
+# ## --- if killAll is specified, kill all LSP instances
+# elif [[ $command == "killAll" ]]; then
+# 	if [[ `screen -ls | grep -e LSP-` ]]; then 
+# 		screen -ls | grep -e LSP- | cut -d. -f1 | awk '{print $1}' | xargs kill -9;
+# 		screen -wipe
+# 	fi
+# ## --- if killAll-FromLanguage is specified, kill all LSP instances running that language
+# elif [[ $command == "killAll-FromLanguage" ]]; then
 
-	if [[ `screen -ls | grep -e LSP-$languageName-` ]]; then 
-		screen -ls | grep -e LSP-$languageName- | cut -d. -f1 | awk '{print $1}' | xargs kill -9;
-		screen -wipe
-	fi
+# 	if [[ `screen -ls | grep -e LSP-$languageName-` ]]; then 
+# 		screen -ls | grep -e LSP-$languageName- | cut -d. -f1 | awk '{print $1}' | xargs kill -9;
+# 		screen -wipe
+# 	fi
 
 #----------------------------------------------------------------------
 #---------------------- CREATE NEW LSP PROJECT ------------------------
@@ -292,7 +296,7 @@ elif [[ $command == "createNewLanguageVersion" ]]; then
 
 	# # briefly lock lock the folder
 	# ( 
-	# flock -e $F_LOCK_BUILD
+	# flock -e 200
 
 	# 	git checkout $languageName-_-$version
 	# 	# last slash is important, otherwise it will not be interpreted as a folder
@@ -354,7 +358,7 @@ elif [[ $command == "buildNewLSP" ]]; then
 
 # otherwise
 else
-	echo "Unknown command - please retry"
+	echo "Unknown command $command - please retry" >> .logfile
 fi
 
 
