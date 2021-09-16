@@ -644,15 +644,19 @@ class MyDslGenerator extends AbstractGenerator {
 	}
 	
 	/**
-	 * If 		last character is a ',' -> chop it off.
+	 * If 		last character is a ',' -> chop it off. 
 	 * Else 	do nothing
 	 * 
 	 * ',' is in Ascii number 44.
 	 */
 	def String chopLastComma(String str) {
-		if (str.charAt(str.length - 1) == 44) {
-			return str.substring(0, str.length() - 1)
+	
+		if (str.length > 0) {
+			if (str.charAt(str.length - 1) == 44) {
+				return str.substring(0, str.length() - 1)
+			}
 		}
+
 		return str
 	}
 }
