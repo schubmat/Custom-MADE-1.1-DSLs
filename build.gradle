@@ -6,7 +6,8 @@ buildscript {
 		}
 	}
 	dependencies {
-		classpath 'org.xtext:xtext-gradle-plugin:3.0.2'
+		// classpath 'org.xtext:xtext-gradle-plugin:3.0.2'
+		classpath 'org.xtext:xtext-gradle-plugin:2.0.1'
 		classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
 		classpath 'net.researchgate:gradle-release:2.6.0'
 	}
