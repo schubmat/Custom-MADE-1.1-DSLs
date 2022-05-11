@@ -8,7 +8,6 @@ import org.xtext.example.mydsl.myDsl.Model
 import org.eclipse.xtext.generator.AbstractGenerator
 import org.eclipse.xtext.generator.IFileSystemAccess2
 import org.eclipse.xtext.generator.IGeneratorContext
-import org.xtext.example.mydsl.myDsl.DecisionRecord
 
 /**
  * Generates code from your model files on save.
@@ -20,7 +19,7 @@ class MyDslGenerator extends AbstractGenerator {
 	override void doGenerate(Resource resource, IFileSystemAccess2 fsa, IGeneratorContext context) {
 		
 		val model = resource.contents.head as Model;
-		val decisionRecord = model.records.head as DecisionRecord;
+		val decisionRecord = model.records.head;
 		val fileName = resource.URI.trimFileExtension.lastSegment
 
 //		fsa.generateFile(fileName + ".java", '''
